@@ -17,7 +17,7 @@ export const videoInfoHandler = async (
       .getRepository(VideoInfo)
       .findOneOrFail({ where: { id: videoId } });
 
-    console.log('result', result);
+    // console.log('result', result);
     res.statusCode = 200;
     res.write(JSON.stringify({ result }));
     next()

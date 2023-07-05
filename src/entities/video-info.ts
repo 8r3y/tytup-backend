@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class VideoInfo {
@@ -22,6 +22,9 @@ export class VideoInfo {
 
   @Column()
   views?: string;
+
+  @Column({ default: '' })
+  description: string;
 
   @Column()
   createdAt: number;

@@ -24,7 +24,7 @@ export const videoListHandler = async (
       .getRepository(VideoInfo)
       .findAndCount();
 
-    console.log('result', result);
+    // console.log('result', result);
     res.statusCode = 200;
     res.write(JSON.stringify({ result: { items: result, count } }));
     next();
