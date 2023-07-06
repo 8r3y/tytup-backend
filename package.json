@@ -15,11 +15,12 @@
     "busboy": "^1.6.0",
     "fastify": "^4.19.2",
     "fluent-ffmpeg": "^2.1.2",
-    "hls-server": "^1.5.0",
+    "http-attach": "^1.0.0",
     "pg": "^8.11.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.17",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/busboy": "^1.5.0",

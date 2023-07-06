@@ -14,10 +14,37 @@ export const uploadVideoHandler = async (
   const uploadId = uuidV4();
   const createdAt = Math.floor(Date.now() / 1000);
   let name = '';
+  let description = '';
+  let extension = 'mp4';
   let isOk = false;
 
+  const contentLength = Number(req.headers['content-length'] || 0);
+  console.log('Content length', contentLength);
+
+  if (contentLength > 50 * 1024 * 1024) {
+    req.statusCode = 200;
+    res.end(
+      JSON.stringify({
+        error: `Uploaded video is too large`,
+      }),
+    );
+    return;
+  }
+
   try {
-    const bb = busboy({ headers: req.headers });
+    const bb = busboy({ headers: req.headers, defCharset: 'utf-8' });
+
+    const finishProcess = () => {
+      addUploadToQueue({ uploadId, createdAt, name, description, extension });
+      isOk = true;
+      res.statusCode = 200;
+      res.end(
+        JSON.stringify({
+          result: `Video #${uploadId} successfully uploaded. And will be transcoding as soon as possible.`,
+        }),
+      );
+    };
+
     bb.on('file', (name, file, info) => {
       const { filename, encoding, mimeType } = info;
       console.log(
@@ -26,14 +53,17 @@ export const uploadVideoHandler = async (
         encoding,
         mimeType,
       );
+      console.log('Info', info);
 
-      if (name !== 'video' || mimeType !== 'video/mp4') {
+      if (name !== 'video' || !mimeType.startsWith('video/')) {
         res.statusCode = 200;
         res.end(JSON.stringify({ error: 'Video not uploaded' }));
         return;
       }
 
-      const saveTo = path.resolve('./raw-videos', `${uploadId}.mp4`);
+      extension = mimeType.split('/')[1];
+
+      const saveTo = path.resolve('./raw-videos', `${uploadId}.${extension}`);
       console.log('saveTo', saveTo);
 
       name = filename;
@@ -42,25 +72,26 @@ export const uploadVideoHandler = async (
 
       stream.on('finish', () => {
         console.log('stream on finish', isOk);
-        res.statusCode = 200;
-        if (isOk) {
-          addUploadToQueue({ uploadId, createdAt, name });
-          res.end(
-            JSON.stringify({
-              result: `Video #${uploadId} successfully uploaded. And will be transcoding as soon as possible.`,
-            }),
-          );
-        } else {
-          res.end(JSON.stringify({ error: 'Not isOk' }));
+        if (!isOk) {
+          finishProcess();
         }
       });
     });
-    // bb.on('field', (name, val, info) => {
-    //   console.log(`Field [${name}]: value: %j`, val);
-    // });
+    bb.on('field', (fieldName, fieldValue, info) => {
+      console.log(`Field [${fieldName}]: value: %j`, fieldValue);
+      if (fieldName === 'description' && fieldValue.length > 0) {
+        description = fieldValue;
+      }
+
+      if (fieldName === 'name' && fieldValue.length > 0) {
+        name = fieldValue;
+      }
+    });
     bb.on('close', () => {
       console.log('Done parsing form!', isOk);
-      isOk = true;
+      if (!isOk) {
+        finishProcess();
+      }
     });
     req.pipe(bb);
     return;

@@ -22,7 +22,7 @@ export const videoListHandler = async (
   try {
     const [result, count] = await AppDataSource.manager
       .getRepository(VideoInfo)
-      .findAndCount();
+      .findAndCount({order: {createdAt: 1}});
 
     // console.log('result', result);
     res.statusCode = 200;

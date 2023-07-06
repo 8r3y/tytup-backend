@@ -1,4 +1,3 @@
-import HLSServer from 'hls-server';
 import http, { IncomingMessage, ServerResponse } from 'http';
 import httpAttach from 'http-attach';
 import 'reflect-metadata';
@@ -7,6 +6,7 @@ import { videoInfoHandler } from './video-info-handler';
 import { AppDataSource } from './data-source';
 import { videoListHandler } from './video-list-handler';
 import { uploadVideoHandler } from './upload-video-handler';
+import { HLSServer } from './hls-server';
 
 const server = http.createServer();
 

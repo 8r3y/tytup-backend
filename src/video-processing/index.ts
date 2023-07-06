@@ -12,14 +12,18 @@ export const addUploadToQueue = ({
   uploadId,
   createdAt,
   name,
+  description,
+  extension
 }: {
   uploadId: string;
   name: string;
   createdAt: number;
+  description: string;
+  extension: string;
 }) => {
   const outputPath = path.resolve('./videos', `${uploadId}`);
   const screenshotPath = path.resolve('./previews');
-  const inputPath = path.resolve('./raw-videos', `${uploadId}.mp4`);
+  const inputPath = path.resolve('./raw-videos', `${uploadId}.${extension}`);
   console.log('addUploadToQueue', {
     path: ffmpegInstaller.path,
     uploadId,
@@ -28,6 +32,7 @@ export const addUploadToQueue = ({
   });
   fs.mkdirSync(outputPath);
   try {
+    const startTime = Date.now();
     ffmpeg(inputPath)
       .addOptions([
         '-acodec copy',
@@ -43,7 +48,11 @@ export const addUploadToQueue = ({
       ])
       .output(path.resolve(outputPath, 'output.m3u8'))
       .on('end', (event) => {
-        console.log('End event', event);
+        console.log(
+          'End event with',
+          (Date.now() - startTime) / 1000,
+          'seconds',
+        );
 
         const videoInfo = new VideoInfo();
         videoInfo.id = uploadId;
@@ -52,6 +61,7 @@ export const addUploadToQueue = ({
         videoInfo.duration = 'N/A';
         videoInfo.views = 'N/A';
         videoInfo.name = name;
+        videoInfo.description = description;
         videoInfo.url = `https://prayers.nsstms.ru/videos/${uploadId}/output.m3u8`;
         videoInfo.preview = `https://prayers.nsstms.ru/previews/${uploadId}.jpg`;
 
