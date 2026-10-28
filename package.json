@@ -10,8 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "encrypt-video": "ts-node src/scripts/encrypt-video.ts"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andrey Potapov",
+  "license": "MIT",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "busboy": "^1.6.0",
