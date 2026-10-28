@@ -7,6 +7,7 @@ import { AppDataSource } from './data-source';
 import { videoListHandler } from './video-list-handler';
 import { uploadVideoHandler } from './upload-video-handler';
 import { HLSServer } from './hls-server';
+import { config } from './config';
 
 const server = http.createServer();
 
@@ -17,8 +18,7 @@ const hls = new HLSServer(server, {
 
 console.log('HLS', hls);
 
-const port = 8001;
-const hostname = '0.0.0.0';
+const { port, hostname } = config;
 
 const listVideosMiddleware = (
   req: IncomingMessage,

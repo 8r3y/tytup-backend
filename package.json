@@ -1,12 +1,14 @@
 {
-  "name": "backend",
+  "name": "tytup-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Minimal self-hosted video hosting backend: upload, ffmpeg HLS transcoding, streaming",
+  "main": "build/index.js",
   "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "dev": "cross-env TEST_VARIABLE=TEST_VALUE concurrently \"nodemon\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/index.js",
-    "dev": "cross-env TEST_VARIABLE=TEST_VALUE concurrently \"nodemon\""
+    "encrypt-video": "ts-node src/scripts/encrypt-video.ts"
   },
   "author": "",
   "license": "ISC",

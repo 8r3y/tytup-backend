@@ -4,6 +4,7 @@ import busboy from 'busboy';
 import path from 'path';
 import fs from 'fs';
 import { addUploadToQueue } from './video-processing';
+import { config } from './config';
 
 export const uploadVideoHandler = async (
   req: IncomingMessage,
@@ -21,7 +22,7 @@ export const uploadVideoHandler = async (
   const contentLength = Number(req.headers['content-length'] || 0);
   console.log('Content length', contentLength);
 
-  if (contentLength > 50 * 1024 * 1024) {
+  if (contentLength > config.maxUploadSize) {
     req.statusCode = 200;
     res.end(
       JSON.stringify({

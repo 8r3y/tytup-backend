@@ -5,6 +5,8 @@ import ffmpeg from 'fluent-ffmpeg';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import path from 'path';
 import fs from 'fs';
+import { config } from '../config';
+import { HLS_OPTIONS } from './hls-options';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
@@ -34,18 +36,7 @@ export const addUploadToQueue = ({
   try {
     const startTime = Date.now();
     ffmpeg(inputPath)
-      .addOptions([
-        '-acodec copy',
-        '-profile:v baseline',
-        '-level 3.0',
-        '-s 1920x1080',
-        '-start_number 0',
-        '-hls_time 10',
-        '-hls_list_size 0',
-        '-c:a aac',
-        '-strict -2',
-        `-f hls`,
-      ])
+      .addOptions(HLS_OPTIONS)
       .output(path.resolve(outputPath, 'output.m3u8'))
       .on('end', (event) => {
         console.log(
@@ -57,13 +48,13 @@ export const addUploadToQueue = ({
         const videoInfo = new VideoInfo();
         videoInfo.id = uploadId;
         videoInfo.createdAt = createdAt;
-        videoInfo.author = 'Andy Petrosov';
+        videoInfo.author = config.defaultAuthor;
         videoInfo.duration = 'N/A';
         videoInfo.views = 'N/A';
         videoInfo.name = name;
         videoInfo.description = description;
-        videoInfo.url = `https://prayers.nsstms.ru/videos/${uploadId}/output.m3u8`;
-        videoInfo.preview = `https://prayers.nsstms.ru/previews/${uploadId}.jpg`;
+        videoInfo.url = `${config.publicUrl}/videos/${uploadId}/output.m3u8`;
+        videoInfo.preview = `${config.publicUrl}/previews/${uploadId}.jpg`;
 
         ffmpeg(inputPath)
           .addOptions(['-ss 00:00:10', '-frames:v 1', '-q:v 2'])

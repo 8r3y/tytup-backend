@@ -8,6 +8,7 @@ import fsProvider from './fsProvider';
 let CONTENT_TYPE = {
   MANIFEST: 'application/vnd.apple.mpegurl',
   SEGMENT: 'video/MP2T',
+  KEY: 'application/octet-stream',
   HTML: 'text/html',
 };
 
@@ -40,7 +41,16 @@ export class HLSServer {
     let uri = url.parse(req.url).pathname;
     let relativePath = path.relative(this.path, uri);
     let filePath = path.join(this.dir, relativePath);
-    
+
+    // Do not serve anything outside of the streams directory (path traversal)
+    if (
+      relativePath.startsWith('..') ||
+      path.isAbsolute(relativePath) ||
+      !path.resolve(filePath).startsWith(path.resolve(this.dir!) + path.sep)
+    ) {
+      return next();
+    }
+
     req.extension = path.extname(filePath);
     
     // console.log('_middleware', {
@@ -155,18 +165,10 @@ export class HLSServer {
         return next();
       }
 
-      res.setHeader('Content-Type', CONTENT_TYPE.MANIFEST);
+      // Demo: the key is served to anyone, see "Шифрование HLS" in README
+      res.setHeader('Content-Type', CONTENT_TYPE.KEY);
       res.statusCode = 200;
-
-      if (req.acceptsCompression) {
-        res.setHeader('content-encoding', 'gzip');
-        res.statusCode = 200;
-        let gzip = zlib.createGzip();
-
-        stream.pipe(gzip).pipe(res);
-      } else {
-        stream.pipe(res).setDefaultEncoding('utf-8');
-      }
+      stream.pipe(res);
     });
   };
 

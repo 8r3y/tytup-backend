@@ -107,8 +107,5 @@
   ],
   "ts-node": {
     "files": true
-  },
-  "files": [
-    "@types/project.d.ts"
-  ]
+  }
 }

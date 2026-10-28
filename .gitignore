@@ -111,3 +111,10 @@ dist
 /videos
 /raw-videos
 /previews
+
+# HLS encryption keys
+*.key
+*.keyinfo
+
+# Build output
+/build
